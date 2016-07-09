@@ -16,6 +16,8 @@ public class KontoauszugConverterToCSV implements Runnable {
 
 	public static void main(String[] args) {
 		File resourcesFolder = new File(args[0]);
+		System.out.println(resourcesFolder.getAbsolutePath());
+		
 		File[] listOfFiles = resourcesFolder.listFiles(new FileFilter() {
 			@Override
 			public boolean accept(File file) {
@@ -34,7 +36,7 @@ public class KontoauszugConverterToCSV implements Runnable {
 		}
 		try {
 			System.out.println("Working Directory = " + System.getProperty("user.dir"));
-			FileWriter writer = new FileWriter(args[0] + "/result/Zusammenfassung.csv");
+			FileWriter writer = new FileWriter(args[0] + "/Zusammenfassung.csv");
 			for (int i = 0; i < fileProcessor.size(); i++) {
 				try {
 					threads.get(i).join();
