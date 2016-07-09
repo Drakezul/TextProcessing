@@ -15,9 +15,7 @@ public class KontoauszugConverterToCSV implements Runnable {
 	private ArrayList<String[]> results;
 
 	public static void main(String[] args) {
-		File resourcesFolder = new File(args[0]);
-		System.out.println(resourcesFolder.getAbsolutePath());
-		
+		File resourcesFolder = new File(args[0]);		
 		File[] listOfFiles = resourcesFolder.listFiles(new FileFilter() {
 			@Override
 			public boolean accept(File file) {
@@ -35,7 +33,6 @@ public class KontoauszugConverterToCSV implements Runnable {
 			threads.add(new Thread(fileProcessor.get(i)));
 		}
 		try {
-			System.out.println("Working Directory = " + System.getProperty("user.dir"));
 			FileWriter writer = new FileWriter(args[0] + "/Zusammenfassung.csv");
 			for (int i = 0; i < fileProcessor.size(); i++) {
 				try {
@@ -93,24 +90,15 @@ public class KontoauszugConverterToCSV implements Runnable {
 				currentSet[0] = currentLine.substring(0, 5);
 				currentSet[1] = currentLine.substring(7, 12);
 				currentSet[2] = currentLine.substring(14);
-				currentLine = fileScanner.nextLine().trim().replaceAll("\\s+", " ");
-				while (currentLine.length() == 0) {
-					currentLine = fileScanner.nextLine().trim().replaceAll("\\s+", " ");
-				}
+				currentLine = trimNextLines(fileScanner);
 				currentSet[3] = currentLine;
-				currentLine = fileScanner.nextLine().trim().replaceAll("\\s+", " ");
-				while (currentLine.length() == 0) {
-					currentLine = fileScanner.nextLine().trim().replaceAll("\\s+", " ");
-				}
+				currentLine = trimNextLines(fileScanner);
 				String mainLine = "";
 				while (!((currentLine.length() > 11 && currentLine.charAt(2) == '.' && currentLine.charAt(9) == '.')
 						|| currentLine.length() == 0 || currentLine.contains("Übertrag auf Blatt")
 						|| currentLine.contains("neuer Kontostand"))) {
 					mainLine += currentLine;
-					currentLine = fileScanner.nextLine().trim().replaceAll("\\s+", " ");
-					while (currentLine.length() == 0) {
-						currentLine = fileScanner.nextLine().trim().replaceAll("\\s+", " ");
-					}
+					currentLine = trimNextLines(fileScanner);
 				}
 				currentSet[4] = mainLine;
 				results.add(currentSet);
@@ -126,14 +114,19 @@ public class KontoauszugConverterToCSV implements Runnable {
 			while (!currentLine.contains("Übertrag von Blatt")) {
 				currentLine = fileScanner.nextLine().trim().replaceAll("\\s+", " ");
 			}
-			currentLine = fileScanner.nextLine().trim().replaceAll("\\s+", " ");
-			while (currentLine.length() == 0) {
-				currentLine = fileScanner.nextLine().trim().replaceAll("\\s+", " ");
-			}
+			currentLine = trimNextLines(fileScanner);
 			processSets(fileScanner, currentLine);
 		} else if (currentLine.contains("neuer Kontostand")) {
 			return;
 		}
+	}
+	
+	private String trimNextLines(Scanner fileScanner){
+		String currentLine = fileScanner.nextLine().trim().replaceAll("\\s+", " ");
+		while (currentLine.length() == 0) {
+			currentLine = fileScanner.nextLine().trim().replaceAll("\\s+", " ");
+		}
+		return currentLine;
 	}
 
 }
