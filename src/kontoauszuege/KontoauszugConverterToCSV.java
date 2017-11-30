@@ -1,93 +1,17 @@
 package kontoauszuege;
 
 import java.io.File;
-import java.io.FileFilter;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.nio.charset.Charset;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Scanner;
 
 public class KontoauszugConverterToCSV implements Runnable {
 
+	public ArrayList<String[]> results;
 	private String filepath;
-	private ArrayList<String[]> results;
-
-	private static int setLength = 7;
-	// start at 1, skip header and first line
-
-	public static void main(String[] args) {
-		File resourcesFolder = new File(args[0]);
-		File[] listOfFiles = resourcesFolder.listFiles(new FileFilter() {
-			@Override
-			public boolean accept(File file) {
-				return file.isFile() && file.getPath().endsWith(".txt");
-			}
-		});
-		Arrays.sort(listOfFiles, new KontoauszugComparator());
-
-		ArrayList<KontoauszugConverterToCSV> fileProcessor = new ArrayList<KontoauszugConverterToCSV>();
-		ArrayList<Thread> threads = new ArrayList<Thread>();
-
-		for (int i = 0; i < listOfFiles.length; i++) {
-			KontoauszugConverterToCSV temp = new KontoauszugConverterToCSV(listOfFiles[i].getPath());
-			fileProcessor.add(temp);
-			threads.add(new Thread(temp));
-		}
-		try {
-			OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(args[0] + "/Zusammenfassung.csv"),
-					Charset.forName("Windows-1252").newEncoder());
-			String csvHeader = "Bu-Tag;Wert;Vorgang;Sender/Empfänger;Additionals;IBAN;Betrag;";
-			String[] anticipatedColumns = csvHeader.split(";");
-			System.out.println("Set length: " + setLength);
-			System.out.println("Anticipated sets: ");
-			for (String column : anticipatedColumns) {
-				System.out.println(column);
-			}
-			writer.append(csvHeader + "\n");
-
-			double sum = 0;
-			DecimalFormat centsFormat = new DecimalFormat("0.00");
-			for (int i = 0; i < fileProcessor.size(); i++) {
-				try {
-					threads.get(i).join();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				for (String[] currentSet : fileProcessor.get(i).results) {
-					for (int j = 0; j < setLength; j++) {
-						String currentColumn = currentSet[j];
-						if (currentColumn == null) {
-							currentColumn = "";
-						}
-						writer.append(currentColumn + ";");
-					}
-					double deltaValue = 0;
-					// remove remove H, remove S, blank, transform to english
-					// decimal
-					String value = currentSet[setLength - 1].replaceAll("H", "").replaceAll("S", "").replaceAll(" ", "")
-							.replaceAll("\\.", "").replaceAll(",", ".");
-					if (currentSet[setLength - 1].endsWith("H")) {
-						deltaValue = Double.parseDouble(value);
-					} else if (currentSet[setLength - 1].endsWith("S")) {
-						deltaValue = (-1) * Double.parseDouble(value);
-					}
-					sum += deltaValue;
-					writer.append(centsFormat.format(sum) + ";\n");
-				}
-			}
-			writer.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
 
 	public KontoauszugConverterToCSV(String filepath) {
 		this.filepath = filepath;
-		this.run();
 	}
 
 	public void run() {
