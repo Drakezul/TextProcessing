@@ -107,7 +107,10 @@ public class KontoauszugConverter {
 	private double extractAmount(String amount) {
 		double deltaValue = 0;
 		// remove H, S, whitespaces and dots and convert commas to dots
-		String value = amount.replaceAll("H", "").replaceAll("S", "").replaceAll("\\s", "").replaceAll("\\.", "")
+		String value = amount.replaceAll("H", "")
+				.replaceAll("S", "")
+				.replaceAll("\\s", "")
+				.replaceAll("\\.", "")
 				.replaceAll(",", ".");
 		if (amount.endsWith("H")) {
 			deltaValue = Double.parseDouble(value);

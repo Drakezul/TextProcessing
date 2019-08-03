@@ -68,7 +68,7 @@ public class KontoauszugConverterToCSV implements Runnable {
 						ibanData = "IBAN: " + mainParts[1];
 					}
 				}
-				String[] splitTemp =bookingData.split("PN:\\d+"); 
+				String[] splitTemp = bookingData.split("PN:\\d+");
 				String amount = splitTemp[1].trim().replaceAll("\\s", " ");
 				results.add(new String[] { bookingDay, valueDay, bookingData, sender, information, ibanData, amount });
 			} else {
