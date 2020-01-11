@@ -1,4 +1,4 @@
-package kontoauszuege;
+package bankStatements;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -9,25 +9,25 @@ import java.nio.charset.Charset;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 
-public class KontoauszugConverter {
+public class BankStatementConverter {
 
 	public static void main(String[] args) {
-		new KontoauszugConverter(args[0]);
+		new BankStatementConverter(args[0]);
 	}
 
 	public static final String ANTICIPATED_COLUMNS = "Bu-Tag;Wert;Vorgang;Sender/Empfänger;Additionals;IBAN;Betrag;";
 
-	public KontoauszugConverter(String folderPath) {
+	public BankStatementConverter(String folderPath) {
 		File[] files = getFiles(folderPath);
-		Arrays.sort(files, new KontoauszugComparator());
+		Arrays.sort(files, new BankStatementComparator());
 
-		KontoauszugConverterToCSV[] instances = createInstances(files);
+		BankStatementConverterToCSV[] instances = createInstances(files);
 		Thread[] threads = startInstancesInThreads(instances);
 		printAnticipatedColumns();
 		write(folderPath, instances, threads);
 	}
 
-	private void write(String folderPath, KontoauszugConverterToCSV[] instances, Thread[] threads) {
+	private void write(String folderPath, BankStatementConverterToCSV[] instances, Thread[] threads) {
 		try {
 			OutputStreamWriter writer = new OutputStreamWriter(
 					new FileOutputStream(folderPath + "/Zusammenfassung.csv"),
@@ -75,7 +75,7 @@ public class KontoauszugConverter {
 		}
 	}
 
-	private Thread[] startInstancesInThreads(KontoauszugConverterToCSV[] instances) {
+	private Thread[] startInstancesInThreads(BankStatementConverterToCSV[] instances) {
 		Thread[] threads = new Thread[instances.length];
 		for (int i = 0; i < threads.length; i++) {
 			threads[i] = new Thread(instances[i]);
@@ -84,10 +84,10 @@ public class KontoauszugConverter {
 		return threads;
 	}
 
-	private KontoauszugConverterToCSV[] createInstances(File[] files) {
-		KontoauszugConverterToCSV[] instances = new KontoauszugConverterToCSV[files.length];
+	private BankStatementConverterToCSV[] createInstances(File[] files) {
+		BankStatementConverterToCSV[] instances = new BankStatementConverterToCSV[files.length];
 		for (int i = 0; i < instances.length; i++) {
-			instances[i] = new KontoauszugConverterToCSV(files[i].getPath());
+			instances[i] = new BankStatementConverterToCSV(files[i].getPath());
 		}
 		return instances;
 	}

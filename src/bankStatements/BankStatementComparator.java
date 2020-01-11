@@ -1,9 +1,9 @@
-package kontoauszuege;
+package bankStatements;
 
 import java.io.File;
 import java.util.Comparator;
 
-public class KontoauszugComparator implements Comparator<File> {
+public class BankStatementComparator implements Comparator<File> {
 
 	@Override
 	public int compare(File arg0, File arg1) {
